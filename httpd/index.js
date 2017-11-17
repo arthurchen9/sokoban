@@ -2,20 +2,12 @@
 
 let http = require('http');
 
-const routingTable ={
-  '/':{
-    url:'../htdocs/index.html',
-    type:'text/html'
-  },
-  '/styles.css':{
-    url: '../htdocs/assets/css/styles.css',
-    type: 'text/css'
-  },
+const routingTable =require ('./config.json');
   /*'/SokobanClone_byVellidragon.png': {
    url: '../htdocs/assets/png/SokobanClone_byVellidragon.png',
   type: 'image/png'
-},*/
-};
+}*/
+
 
 /**
 * 利⽤ http.ServerResponse 物件回傳檔案內容
@@ -61,14 +53,13 @@ console.log(
 });
 
 request.on('end', () => {
-  if (request.url in routingTable){
-    let obj = routingTable[request.url];
+  if (request.url in routingTable) {
+let obj = routingTable[request.url];
 
-    serve(response, obj.url, obj.type);
-  }
-  else{
-console.log(' 未定義的存取: ' + request.url);
-
+ serve(response, obj.url, obj.type);
+}
+ else {
+ console.log(' 未定義的存取: ' + request.url);
 response.end();
 }
 });

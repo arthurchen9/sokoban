@@ -1,0 +1,11 @@
+{
+  "/":{
+    "url":"../htdocs/index.html",
+    "type":"text/html"
+  },
+  "/styles.css":{
+    "url": "../htdocs/assets/css/styles.css",
+    "type": "text/css"
+  }
+
+}
