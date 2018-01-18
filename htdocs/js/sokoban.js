@@ -1,16 +1,29 @@
-'use strict';
 /**
-* sokoban 關卡描述
-*
-* # 牆壁 (wall)
-* @ 玩家 (player)
-* $ 箱⼦ (box)
-* . ⽬標點 (goal)
-* + 玩家站在⽬標點上 (player on goal square)
-* * 箱⼦在⽬標點上 (box on goal square)
-* 空⽩ 地板 (floor)
-*/
+ *  @file       index.js
+ *  @brief      The entry file of Sokoban.
+ *  @author     Yiwei Chiao (ywchiao@gmail.com)
+ *  @date       11/17/2017 created.
+ *  @date       01/05/2018 last modified.
+ *  @version    0.1.0
+ *  @since      0.1.0
+ *  @copyright  MIT, © 2017-2018 Yiwei Chiao
+ *  @details
+ *
+ *  The entry file of Sokoban.
+ */
+'use strict';
 
+/**
+ * Sokoban 符號常數
+ *
+ *  #    牆壁 (wall)
+ *  @    玩家 (player)
+ *  $    箱子 (box)
+ *  .    目標點 (goal)
+ *  +    玩家站在目標點上 (player on goal square)
+ *  *    箱子在目標點上 (box on goal square)
+ *  空白 地板 (floor)
+ */
 const SOKOBAN = {
   BOX: '$',
   BOX_ON_GOAL: '*',
@@ -20,41 +33,76 @@ const SOKOBAN = {
   MAN: '@',
   MAN_ON_GOAL: '+',
   WALL: '#',
+  DOWN: 'd',
+  LEFT: 'l',
+  RIGHT: 'r',
+  UP: 'u',
 };
+
 /**
  * Sokoban 關卡描述
  */
-
-
 let levels = [
- [
-"############",
-"#     .    #",
-"#          #",
-"#          #",
-"#   ####   #",
-"#          #",
-"#          #",
-"#     $    #",
-"#     @    #",
-"#          #",
-"#          #",
-"############"
-],
- [
-"------------",
-"------------",
-"--#######---",
-"--# ..$ #---",
-"--# # $ #---",
-"--# # # #---",
-"--# $@# #---",
-"--#.$   #---",
-"--#.#####---",
-"--###-------",
-"------------",
-"------------"
-],
+  [
+    "############",
+    "#         .#",
+    "#         $#",
+    "#         @#",
+    "#   ####   #",
+    "#          #",
+    "#          #",
+    "#          #",
+    "#          #",
+    "#          #",
+    "#          #",
+    "############"
+  ],
+
+  [
+     "------------",
+     "------------",
+     "--#######---",
+     "--# ..$ #---",
+     "--# # $ #---",
+     "--# # # #---",
+     "--# $@# #---",
+     "--#.$   #---",
+     "--#.#####---",
+     "--###-------",
+     "------------",
+     "------------"
+   ],
+];
+let Endlevels = [
+  [
+    "############",
+    "#         $#",
+    "#          #",
+    "#         @#",
+    "#   ####   #",
+    "#          #",
+    "#          #",
+    "#          #",
+    "#          #",
+    "#          #",
+    "#          #",
+    "############"
+  ],
+
+  [
+     "------------",
+     "------------",
+     "--#######---",
+     "--# $$  #---",
+     "--# # $ #---",
+     "--# # # #---",
+     "--#  @# #---",
+     "--#$    #---",
+     "--#$#####---",
+     "--###-------",
+     "------------",
+     "------------"
+   ],
 ];
 
 /**
@@ -67,6 +115,98 @@ let replaceAt = (str, x, ch) => {
   arrayOfChar[x] = ch;
 
   return arrayOfChar.join('');
+};
+
+/**
+ * 準備繪圖用的 sprites 資料。
+ *
+ * @returns sprites 集合物件。
+ */
+let tileset = {
+  src: 'SokobanClone_byVellidragon.png',
+
+  tile: {
+    [SOKOBAN.BOX]: {
+      x: 0,
+      y: 0 ,
+      width: 32,
+      height: 32,
+    },
+
+    [SOKOBAN.BOX_ON_GOAL]: {
+      x: 32,
+      y: 0,
+      width: 32,
+      height: 32,
+    },
+
+    [SOKOBAN.WALL]: {
+      x: 64,
+      y: 0,
+      width: 32,
+      height: 32,
+    },
+
+    [SOKOBAN.FLOOR]: {
+      x: 0,
+      y: 32,
+      width: 32,
+      height: 32,
+    },
+
+    [SOKOBAN.GOAL]: { 
+      x: 32,
+      y: 32,
+      width: 32,
+      height: 32,
+    },
+
+    [SOKOBAN.GROUND]: {
+      x: 64,
+      y: 32,
+      width: 32,
+      height: 32,
+    },
+
+    [SOKOBAN.RIGHT]: {
+      x: 0,
+      y: 64,
+      width: 32,
+      height: 32,
+    },
+
+    [SOKOBAN.DOWN]: {
+      x: 32,
+      y: 64,
+      width: 32,
+      height: 32,
+    },
+
+    [SOKOBAN.UP]: {
+      x: 0,
+      y: 96,
+      width: 32,
+      height: 32,
+    },
+
+    [SOKOBAN.LEFT]: {
+      x: 32,
+      y: 96,
+      width: 32,
+      height: 32,
+    },
+  },
+};
+
+/**
+ * 貼地磚函式
+ */
+let tile = function (tileset, { x, y, width, height }) {
+  this.brush.drawImage(
+    tileset,
+    x, y, width, height,
+    0, 0, width, height
+  );
 };
 
 /**
@@ -260,7 +400,7 @@ let prototypeGameState = {
   pushBoxDown: function (cell) {
     let manCell = this.cellUp(cell);
     let boxCell = this.cellDown(cell);
-
+  
     return this
       .moveBox(cell, boxCell)
       .moveMan(manCell, cell);
@@ -269,7 +409,7 @@ let prototypeGameState = {
   pushBoxLeft: function (cell) {
     let manCell = this.cellRight(cell);
     let boxCell = this.cellLeft(cell);
-
+  
     return this
       .moveBox(cell, boxCell)
       .moveMan(manCell, cell);
@@ -278,7 +418,7 @@ let prototypeGameState = {
   pushBoxRight: function (cell) {
     let manCell = this.cellLeft(cell);
     let boxCell = this.cellRight(cell);
-
+  
     return this
       .moveBox(cell, boxCell)
       .moveMan(manCell, cell);
@@ -287,7 +427,7 @@ let prototypeGameState = {
   pushBoxUp: function (cell) {
     let manCell = this.cellDown(cell);
     let boxCell = this.cellUp(cell);
-
+  
     return this
       .moveBox(cell, boxCell)
       .moveMan(manCell, cell);
@@ -327,207 +467,237 @@ let prototypeGameState = {
     this.level[y] = replaceAt(this.level[y], x, SOKOBAN.MAN_ON_GOAL);
 
     return this;
+  }
+};
+
+/**
+ * 繪出盤面上的格線
+ *
+ * @param 'ctx' : 繪圖 context 物件
+ * @returns {undefined}
+ */
+let drawBoardGrid = (ctx) => {
+  // 準備一支可以畫 _斷續線_ 的畫筆
+  ctx.strokeStyle = 'black';
+  // 斷續線由連續 4px，再空白 4px構成
+  ctx.setLineDash([4, 4]);
+
+  // 開始記録格線的 paths
+  ctx.beginPath();
+
+  // 畫 12 條鉛直斷續線
+  for (var c = 1; c < 12; c ++) {
+    ctx.moveTo(c * 32, 0);
+    ctx.lineTo(c * 32, 32*12);
+  }
+
+  // 畫 12 條水平斷續線
+  for (var r = 1; r < 12; r ++) {
+    ctx.moveTo( 0, r * 32);
+    ctx.lineTo(640, r * 32);
+  }
+
+  // 繪出格線
+  ctx.stroke();       
+};
+
+/**
+ * Sokoban 遊戲物件
+ */
+let sokoban = {
+  /**
+   * 依滑鼠事件 (click)，改變遊戲資料
+   *
+   * @returns {undefined}
+   */
+  move: function (e) {
+    let cell = {
+      x: Math.floor(e.offsetX / 32),
+      y: Math.floor(e.offsetY / 32),
+    };
+
+    if (this.isMan(this.cellDown(cell))) {
+      this.tiling[SOKOBAN.MAN] = this.tiling[SOKOBAN.UP];
+      this.moveManUp(cell);
+    }
+
+    if (this.isMan(this.cellLeft(cell))) {
+      this.tiling[SOKOBAN.MAN] = this.tiling[SOKOBAN.RIGHT];
+      this.moveManRight(cell);
+    }
+
+    if (this.isMan(this.cellRight(cell))) {
+      this.tiling[SOKOBAN.MAN] = this.tiling[SOKOBAN.LEFT];
+      this.moveManLeft(cell);
+    }
+
+    if (this.isMan(this.cellUp(cell))) {
+      this.tiling[SOKOBAN.MAN] = this.tiling[SOKOBAN.DOWN];
+      this.moveManDown(cell);
+    }
   },
 
-};
+  /**
+   * 依遊戲狀態，繪出盤面
+   *
+   * @returns {undefined}
+   */
+  paint: function () {
+    let height = this.level.length;
 
-/**
-* 準備繪圖⽤的 sprites。
-*
-* @returns sprites 集合物件。
-*/
-let sprites = ((spriteSheet) => {
-let baseX = 0;
-let baseY = 6 * 64;
-let tileset = new Image();
-tileset.src = spriteSheet;
-let tile = (tileset, sx, sy, ctx) => {
-ctx.drawImage(
-tileset,
-sx, sy, 32, 32,
-0, 0, 32, 32
-);
-};
-return {
-box: tile.bind(null, tileset, baseX, baseY),
-boxOnGoal: tile.bind(null, tileset, baseX + 32, baseY),
-wall: tile.bind(null, tileset, baseX + 64, baseY),
-floor: tile.bind(null, tileset, baseX, baseY + 32),
-goal: tile.bind(null, tileset, baseX + 32, baseY + 32),
-grass: tile.bind(null, tileset, baseX + 64, baseY + 32),
-faceRight: tile.bind(null, tileset, baseX, baseY + 64),
-faceDown: tile.bind(null, tileset, baseX + 32, baseY + 64),
-faceUp: tile.bind(null, tileset, baseX, baseY + 96),
-faceLeft: tile.bind(null, tileset, baseX + 32, baseY + 96),
-};
-})('SokobanClone_byVellidragon.png');
-/**
-* 依遊戲狀態，繪出盤⾯
-*
-* @param 'ctx' : 繪圖 context 物件
-* @returns {undefined}
-*/
-let drawGameBoard = (ctx, gameState) => {
-let height = gameState.level.length;
-for (let x = 0; x < height; x ++) {
-for (let y = 0; y < height; y ++) {
-ctx.save();
-ctx.translate(32*x, 32*y);
-switch (gameState.level[y].charAt(x)) {
-  case SOKOBAN.WALL:
-            sprites.wall(ctx);
+    for (let x = 0; x < height; x ++) {
+      for (let y = 0; y < height; y ++) {
+        this.brush.save();
+        this.brush.translate(32*x, 32*y);
 
-            break;
+        let value = this.level[y].charAt(x);
 
-          case SOKOBAN.BOX:
-            sprites.box(ctx);
-
-            break;
-
+        switch (value) {
           case SOKOBAN.MAN:
-            sprites.floor(ctx);
-            sprites.faceUp(ctx);
-
-            break;
-
-          case SOKOBAN.FLOOR:
-            sprites.floor(ctx);
-
-            break;
-
-          case SOKOBAN.GOAL:
-            sprites.goal(ctx);
-
-            break;
-
-          case SOKOBAN.BOX_ON_GOAL:
-            sprites.boxOnGoal(ctx);
+            this.tiling[SOKOBAN.FLOOR]();
 
             break;
 
           case SOKOBAN.MAN_ON_GOAL:
-            sprites.goal(ctx);
-            sprites.faceUp(ctx);
+            this.tiling[SOKOBAN.GOAL]();
+            value = SOKOBAN.MAN;
 
             break;
+        };
 
-          case SOKOBAN.GROUND:
-            sprites.grass(ctx);
+        this.tiling[value]();
 
-            break;
-
-          default:
-            console.log('Wrong map data');
-        }
-
-        ctx.restore();
+        this.brush.restore();
       };
     };
-  };
+  },
 
   /**
-   * 繪出盤面上的格線
+   * 依傳入的遊戲關卡編號，初始遊戲
    *
-   * @param 'ctx' : 繪圖 context 物件
    * @returns {undefined}
    */
-  let drawBoardGrid = (ctx) => {
-    // 準備一支可以畫 _斷續線_ 的畫筆
-    ctx.strokeStyle = 'black';
-    // 斷續線由連續 4px，再空白 4px構成
-    ctx.setLineDash([4, 4]);
+  start: function (level) {
+    this.level = JSON.parse(JSON.stringify(levels[level]));
+    this.paint();
+  },
 
-    // 開始記録格線的 paths
-    ctx.beginPath();
+  /**
+   * 貼圖函式和指令的對應表
+   */
+  tiling: {},
 
-    // 畫 12 條鉛直斷續線
-    for (var c = 1; c < 12; c ++) {
-      ctx.moveTo(c * 32, 0);
-      ctx.lineTo(c * 32, 32*12);
-    }
-
-    // 畫 12 條水平斷續線
-    for (var r = 1; r < 12; r ++) {
-      ctx.moveTo( 0, r * 32);
-      ctx.lineTo(640, r * 32);
-    }
-
-    // 繪出格線
-    ctx.stroke();
+  /**
+   * 遊戲更新介面函式
+   *
+   * @returns {undefined}
+   */
+  update: function (e) {
+    this.move(e);
+	for(var i = 0 ; i < this.level.length ; i++)
+	  {
+		  for (var j =0 ; j < this.level.length ; j++)
+		  {
+			  let xe = this.level[j].charAt(i);
+			  if( == SOKOBAN.BOX_ON_GOAL)
+			  {
+			  alert("你贏了");
+			  }
+		}
+	}
+	this.paint();
+  },
   };
-
- /**
- * 依據輸入的 'level' 產生相應的 GameState 物件。
+ 
+/**
+ * 設定關卡按鈕
  *
- * @param 'level' : 關卡編號
- * @returns GameState 物件
+ * @param 'sokoban' : 遊戲物件
+ * @returns HTML 'section' 物件，含有關卡選擇按鈕
  */
-let newGame = (level) => {
-  let gameState = Object.create(prototypeGameState);
+let controlPane = (sokoban) => {
+  let choices = [ '第一關', '第二關', '第三關' ];
 
-  gameState.level = levels[level];
+  let section = document.createElement('section');
+  section.style.gridArea = '5 / 2 / 6 / 5';
+  
+  choices.forEach((text, level) => {
+    let btn = document.createElement('button');
 
-//  gameState.initGame();
+    btn.style.backgroundColor = '#007fff5f';
+    btn.style.color = '#051268cf';
+    btn.style.fontSize = '2rem';
 
-  return gameState;
+    btn.textContent = text;
+    btn.value = level;
+
+    btn.addEventListener('click', e => {
+      sokoban.start(e.target.value);
+    });
+
+    section.appendChild(btn);
+  });
+
+  return section;
+}
+
+/**
+ * 初始化遊戲物件
+ *
+ * @param 'ctx' : 繪圖用的 context 物件
+ * @param 'tileset': 貼圖用的 tileset 物件
+ *
+ * @returns Game 物件
+ */
+let newGame = (ctx, tileset) => {
+  let game = Object.create(sokoban);
+  Object.setPrototypeOf(sokoban, prototypeGameState);
+
+  let spriteSheet = new Image();
+  spriteSheet.src = tileset.src;
+
+  Object.entries(tileset.tile).forEach(([key, value]) => {
+    value.y += 6 * 64;
+
+    game.tiling[key] = tile.bind(
+      game, spriteSheet, value
+    );
+  });
+
+  game.brush = ctx;
+  game.tiling[SOKOBAN.MAN] = game.tiling[SOKOBAN.UP];
+
+  return game;
 };
 
-let gameLoop = function (ctx, e) {
-  let cell = {
-    x: Math.floor(e.offsetX / 32),
-    y: Math.floor(e.offsetY / 32),
-  };
+/**
+ * sokoban 程式進入點
+ *
+ * @callback
+ * @param 'load' : DOM 事件名
+ * @returns {undefined}
+ */
+window.addEventListener('load', () => {
+  console.log("Sokoban.js loaded");
 
-  if (this.isMan(this.cellDown(cell))) {
-    this.moveManUp(cell);
-  }
+  let gameTitle = document.createElement('span');
+  gameTitle.textContent = 'Sokoban';
 
-  if (this.isMan(this.cellLeft(cell))) {
-    this.moveManRight(cell);
-  }
+  let gameHeader = document.createElement('header');
+  gameHeader.className = 'card_header';
 
-  if (this.isMan(this.cellRight(cell))) {
-    this.moveManLeft(cell);
-  }
+  gameHeader.appendChild(gameTitle);
 
-  if (this.isMan(this.cellUp(cell))) {
-    this.moveManDown(cell);
-  }
+  let sokobanCanvas = document.createElement('canvas');
+  let ctxPaint = sokobanCanvas.getContext('2d');
 
-  drawGameBoard(ctx, this);
-};
+  // 設定繪圖圖紙的寬高
+  sokobanCanvas.width = 32*12
+  sokobanCanvas.height = 32*12;
 
-
-
-  /**
-   * sokoban 程式進入點
-   *
-   * @callback
-   * @param 'load' : DOM 事件名
-   * @returns {undefined}
-   */
-  window.addEventListener('load', () => {
-    console.log("Sokoban.js loaded");
-
-    let gameTitle = document.createElement('span');
-    gameTitle.textContent = 'Sokoban';
-
-    let gameHeader = document.createElement('header');
-    gameHeader.className = 'card_header';
-
-    gameHeader.appendChild(gameTitle);
-
-    let sokobanCanvas = document.createElement('canvas');
-    let ctxPaint = sokobanCanvas.getContext('2d');
-
-    // 設定繪圖圖紙的寬高
-    sokobanCanvas.width = 32*12
-    sokobanCanvas.height = 32*12;
-
-    // 將圖紙埴滿背景色
-    ctxPaint.fillStyle = 'mintcream';
-    ctxPaint.fillRect(0, 0, sokobanCanvas.width, sokobanCanvas.height);
-
+  // 將圖紙埴滿背景色
+  ctxPaint.fillStyle = 'mintcream';
+  ctxPaint.fillRect(0, 0, sokobanCanvas.width, sokobanCanvas.height);
 
   // 繪出遊戲盤面上的格線
   drawBoardGrid(ctxPaint);
@@ -542,6 +712,15 @@ let gameLoop = function (ctx, e) {
 
   gameBoard.appendChild(sokobanBoard);
 
+  let sokoban = newGame(ctxPaint, tileset);
+
+  gameBoard.appendChild(controlPane(sokoban));
+
+  sokobanBoard.addEventListener(
+    'click',
+    sokoban.update.bind(sokoban)
+  );
+
   let gameDesktop = document.createElement('section');
   gameDesktop.className = 'card';
 
@@ -551,26 +730,18 @@ let gameLoop = function (ctx, e) {
   let desktop = document.querySelector('.site_body')
   desktop.appendChild(gameDesktop);
 
-
   /**
-     * 滑鼠游標移動追踪
-     *
-     * @callback
-     * @param 'mousemove' : DOM 事件名
-     * @param e : DOM event 物件
-     * @returns {undefined}
-     */
-    desktop.addEventListener('mousemove', (e) => {
-      document.getElementById('cursor_x').textContent = e.clientX;
-      document.getElementById('cursor_y').textContent = e.clientY;
-    });
-
-    let gameState = newGame(0);
-
-    sokobanBoard.addEventListener(
-      'click',
-      gameLoop.bind(gameState, ctxPaint)
-    );
-
-    drawGameBoard(ctxPaint, gameState);
+   * 滑鼠游標移動追踪
+   *
+   * @callback
+   * @param 'mousemove' : DOM 事件名
+   * @param e : DOM event 物件
+   * @returns {undefined}
+   */
+  desktop.addEventListener('mousemove', (e) => {
+    document.getElementById('cursor_x').textContent = e.clientX;
+    document.getElementById('cursor_y').textContent = e.clientY;
   });
+});
+
+// index.js
