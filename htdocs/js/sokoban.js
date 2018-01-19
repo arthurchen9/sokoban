@@ -73,37 +73,6 @@ let levels = [
      "------------"
    ],
 ];
-let Endlevels = [
-  [
-    "############",
-    "#         $#",
-    "#          #",
-    "#         @#",
-    "#   ####   #",
-    "#          #",
-    "#          #",
-    "#          #",
-    "#          #",
-    "#          #",
-    "#          #",
-    "############"
-  ],
-
-  [
-     "------------",
-     "------------",
-     "--#######---",
-     "--# $$  #---",
-     "--# # $ #---",
-     "--# # # #---",
-     "--#  @# #---",
-     "--#$    #---",
-     "--#$#####---",
-     "--###-------",
-     "------------",
-     "------------"
-   ],
-];
 
 /**
  * 將 'str' 的第 'x' 字元換成 'ch'。
@@ -594,19 +563,34 @@ let sokoban = {
    */
   update: function (e) {
     this.move(e);
-	for(var i = 0 ; i < this.level.length ; i++)
+	if(this.cheakFinsh())
+    {
+        alert("你贏了");
+    }
+	this.paint();
+  },
+  
+  cheakFinsh: function (){
+      for(let i = 0 ; i < this.level.length ; i++)
 	  {
-		  for (var j =0 ; j < this.level.length ; j++)
-		  {
-			  let xe = this.level[j].charAt(i);
-			  if( == SOKOBAN.BOX_ON_GOAL)
+		  for (let j =0 ; j < this.level.length ; j++)
+		  { 
+             let A = this.level[j].charAt(i);
+             switch(A){
+                 case SOKOBAN.GOAL:
+                 return A.length ;
+                 
+                 break;
+                 
+             };
+			  if( A.length == 0 )
 			  {
-			  alert("你贏了");
+                  return true;
 			  }
 		}
 	}
-	this.paint();
-  },
+    return false;
+  }
   };
  
 /**
